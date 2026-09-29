@@ -1,7 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { parseSpotify, parseYouTube } from './lib/embeds';
+import { parseSpotify } from './lib/embeds';
 
 // One Markdown file per week in src/content/weeks/NNN.md.
 // Only week/title/artist/score are required, so imported legacy weeks
@@ -37,19 +37,14 @@ const weeks = defineCollection({
       .optional()),
     links: z
       .object({
-        // Paste share links as-is; these two also become embedded players.
+        // Paste share links as-is. Spotify becomes an embedded player; the rest show as icon links.
         spotify: z.preprocess(
           blankToUndefined,
           z.url()
             .refine((u) => parseSpotify(u) !== null, 'Use a Spotify track, album or playlist link (open.spotify.com/track/...)')
             .optional(),
         ),
-        youtube: z.preprocess(
-          blankToUndefined,
-          z.url()
-            .refine((u) => parseYouTube(u) !== null, 'Use a YouTube video link (youtube.com/watch?v=... or youtu.be/...)')
-            .optional(),
-        ),
+        youtube: z.preprocess(blankToUndefined, z.url().optional()),
         apple: z.preprocess(blankToUndefined, z.url().optional()),
         bandcamp: z.preprocess(blankToUndefined, z.url().optional()),
       })

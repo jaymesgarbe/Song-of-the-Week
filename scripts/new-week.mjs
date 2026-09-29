@@ -26,7 +26,7 @@ album: ""
 favorite: ""   # your favorite part, in a sentence
 links:
   spotify: ""   # paste the share link; becomes an embedded player
-  youtube: ""   # paste the share link; the favorite-part button plays from here
+  youtube: ""   # optional; shows as an icon link
   # apple: ""
 draft: true   # set to false (or delete this line) to publish
 ---

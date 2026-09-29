@@ -30,10 +30,10 @@ they appear in the archive with a Legacy label but get no page and aren't clicka
 New weeks never need that field. `artist` can be a list for
 collaborations: `artist: ["Molly Lewis", "Thee Sacred Souls"]`.
 `favorite` is a plain sentence (`favorite: "The bridge"`), or `{ note, timestamp }` if you
-want to point at a moment. Paste share links into `links.spotify` and `links.youtube` exactly
-as copied from the app; each becomes an embedded player near the top of the entry. A link
-that isn't a Spotify track/album/playlist or a YouTube video fails the build with a message
-naming the field. Apple Music and Bandcamp links show as plain links.
+want to point at a moment. Paste share links into `links` exactly as copied from the app.
+`links.spotify` becomes an embedded player near the top of the entry (a link that isn't a
+Spotify track/album/playlist fails the build with a message naming the field).
+`links.youtube`, `links.apple` and `links.bandcamp` show as icon links that open in a new tab.
 
 Your byline (name, optional photo and link) is set in `src/lib/site.ts`.
 
