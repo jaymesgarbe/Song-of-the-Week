@@ -62,7 +62,11 @@ const iconLinks = [
       <p class="song-score" aria-label={`Score: ${formatScore(d.score)} out of 10`}>
         <span class="score-value">{formatScore(d.score)}</span><span class="score-max">/10</span>
       </p>
+    </div>
+  </div>
 
+  {(spotifySrc || iconLinks.length > 0) && (
+    <div class="listen">
       {spotifySrc && (
         <iframe
           class="embed-spotify"
@@ -88,7 +92,7 @@ const iconLinks = [
         </ul>
       )}
     </div>
-  </div>
+  )}
 
   {d.favorite && (
     <section class="favorite" aria-labelledby={`fav-${d.week}`}>
@@ -125,7 +129,8 @@ const iconLinks = [
   .score-value { font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; font-variant-numeric: tabular-nums; }
   .score-max { font-size: 1.25rem; color: var(--muted); }
 
-  .embed-spotify { display: block; width: 100%; height: 152px; margin-top: var(--space-3); border: 0; border-radius: 12px; }
+  .listen { margin-top: var(--space-3); max-width: var(--measure); }
+  .embed-spotify { display: block; width: 100%; height: 152px; border: 0; border-radius: 12px; }
   .song-links { list-style: none; padding: 0; margin: var(--space-2) 0 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); }
   .song-links a { display: inline-flex; align-items: center; gap: 0.375rem; text-decoration: none; padding-block: 0.25rem; }
   .song-links a:hover span { text-decoration: underline; }
