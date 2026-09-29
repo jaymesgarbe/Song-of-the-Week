@@ -14,11 +14,14 @@ const {
   noindex = false,
   doodles = 14,
 } = Astro.props;
+// Color palette: 'orange-teal' | 'green-violet' | 'red-navy' | 'yellow-burgundy'
+const PALETTE = 'orange-teal';
+
 const fullTitle = title ? `${title} | Song of the Week` : 'Song of the Week';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-palette={PALETTE}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -57,8 +60,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     --ink: #1f1e1c;
     --ink-soft: #5b5954;        /* secondary text */
     --rule: #c9c8c1;            /* ruled lines */
-    --pink: #ff48b0;            /* riso fluorescent pink */
-    --blue: #0078bf;            /* riso blue */
     --tape: rgba(222, 212, 180, 0.72);
 
     /* Type */
@@ -70,7 +71,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     --fg: var(--ink);
     --muted: var(--ink-soft);
     --line: var(--rule);
-    --accent: var(--blue);
+    --accent: var(--ink-b);
+    --error: #a3122b;
 
     /* Layout */
     --measure: 64ch;
@@ -81,6 +83,33 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     --space-3: 1.5rem;
     --space-4: 2.5rem;
     --space-section: clamp(3.5rem, 9vw, 6.5rem);
+  }
+
+  /*
+    Two-ink palettes, named after Risograph inks. Pick one with PALETTE in the
+    frontmatter above. --ink-a: sticker, highlights, underlines. --ink-b: stamps,
+    focus, hovers. --ink-b-text: a darker ink-b for small text, for contrast.
+    Doodles use both.
+  */
+  :root[data-palette='orange-teal'] {
+    --ink-a: #ff6c2f;   /* Orange */
+    --ink-b: #00838a;   /* Teal */
+    --ink-b-text: #006a70;
+  }
+  :root[data-palette='green-violet'] {
+    --ink-a: #00a95c;   /* Green */
+    --ink-b: #765ba7;   /* Violet */
+    --ink-b-text: #634a92;
+  }
+  :root[data-palette='red-navy'] {
+    --ink-a: #f15060;   /* Bright Red */
+    --ink-b: #3d5588;   /* Federal Blue */
+    --ink-b-text: #3d5588;
+  }
+  :root[data-palette='yellow-burgundy'] {
+    --ink-a: #ffe800;   /* Yellow */
+    --ink-b: #914e72;   /* Burgundy */
+    --ink-b-text: #7c3f60;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -99,9 +128,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     overflow-x: hidden;
   }
   img { max-width: 100%; height: auto; display: block; }
-  a { color: inherit; text-decoration-color: var(--pink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-  a:hover { text-decoration-color: var(--blue); }
-  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  a { color: inherit; text-decoration-color: var(--ink-b); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--ink-a); }
+  :focus-visible { outline: 3px solid var(--ink-b); outline-offset: 3px; }
 
   .skip { position: absolute; left: -9999px; }
   .skip:focus { left: var(--gutter); top: var(--space-1); background: var(--paper); padding: var(--space-1); z-index: 10; }
@@ -135,12 +164,12 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     text-decoration: none;
     transform: rotate(-1.5deg);
   }
-  .wordmark:hover { color: var(--paper); background: var(--blue); }
+  .wordmark:hover { color: var(--paper); background: var(--ink-b); }
   .site-header nav { display: flex; gap: var(--space-3); }
   .site-header nav a { text-decoration: none; color: var(--ink-soft); }
   .site-header nav a[aria-current='page'] {
     color: var(--ink);
-    text-decoration: underline wavy var(--pink);
+    text-decoration: underline wavy var(--ink-b);
     text-decoration-thickness: 1.5px;
     text-underline-offset: 6px;
   }
@@ -161,8 +190,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     display: inline-block;
     margin-left: 0.5rem;
     padding: 0 0.4rem;
-    border: 1.5px solid var(--blue);
-    color: var(--blue);
+    border: 1.5px solid var(--ink-b);
+    color: var(--ink-b-text);
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.5;

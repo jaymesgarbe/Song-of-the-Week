@@ -179,17 +179,17 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     background: repeating-linear-gradient(transparent 0 calc(2rem - 1px), var(--rule) calc(2rem - 1px) 2rem);
     background-attachment: local;
   }
-  .comment-form input:focus, .comment-form textarea:focus { outline: none; border-bottom-color: var(--blue); }
-  .comment-form input:focus-visible, .comment-form textarea:focus-visible { box-shadow: 0 2px 0 var(--blue); }
+  .comment-form input:focus, .comment-form textarea:focus { outline: none; border-bottom-color: var(--ink-b); }
+  .comment-form input:focus-visible, .comment-form textarea:focus-visible { box-shadow: 0 2px 0 var(--ink-b); }
   .comment-form button {
     justify-self: start;
     padding: 0.55rem 1.1rem 0.5rem;
-    border: 0; background: var(--ink); color: var(--paper);
+    border: 0; background: var(--ink-b); color: #fff;
     font-family: var(--font-display); font-size: 1rem;
     cursor: pointer; transform: rotate(-1deg);
   }
-  .comment-form button:hover { background: var(--blue); }
+  .comment-form button:hover { background: var(--ink); }
   .comment-form button:disabled { opacity: 0.6; cursor: progress; }
-  .form-error { margin: 0; color: #b0005f; font-weight: 700; }
+  .form-error { margin: 0; color: var(--error); font-weight: 700; }
   .privacy { margin: 0; font-size: 0.8125rem; }
 </style>

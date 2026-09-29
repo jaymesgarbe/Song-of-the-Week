@@ -1,6 +1,6 @@
 ---
 // Scatters the drawings in public/doodles/ across the page background.
-// Drop in black-on-transparent PNG or SVG files; they get inked pink or blue.
+// Drop in black-on-transparent PNG or SVG files; they get inked in the two palette colors.
 // Files named placeholder-* are only used until you add your own.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,6 +9,13 @@ interface Props {
   count?: number;
 }
 const { count = 14 } = Astro.props;
+
+// Horizontal band for doodle centers, as % of page width in from each edge.
+// Raise both numbers to pull doodles toward the middle.
+const EDGE: [number, number] = [5, 13];
+
+// Share of doodles inked in the second palette color (ink-b)
+const TEAL_SHARE = 0.65;
 
 let files: string[] = [];
 try {
@@ -45,10 +52,10 @@ const items = pool.length === 0 ? [] : Array.from({ length: count }, (_, i) => {
   return {
     file: pool[Math.floor(rand() * pool.length)],
     top: Math.min(98, ((i + 0.5) / count) * 100 + between(-3, 3)),
-    x: left ? between(0.5, 9) : between(85, 94),
+    x: left ? between(EDGE[0], EDGE[1]) : 100 - between(EDGE[0], EDGE[1]),
     size: Math.round(between(60, 130)),
     rotate: Math.round(between(-30, 30)),
-    ink: rand() < 0.5 ? 'var(--pink)' : 'var(--blue)',
+    ink: rand() < TEAL_SHARE ? 'var(--ink-b)' : 'var(--ink-a)',
     mobile: i % 3 === 0, // only every third doodle shows on small screens
   };
 });
