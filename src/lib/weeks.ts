@@ -72,3 +72,8 @@ export function computeStats(weeks: Week[]): Stats {
 export function weekHref(week: number): string {
   return `/week/${week}`;
 }
+
+/** Legacy weeks have no page of their own; they only appear as archive rows. */
+export function hasPage(week: Week): boolean {
+  return !week.data.legacy;
+}

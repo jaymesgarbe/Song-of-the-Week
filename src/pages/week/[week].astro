@@ -2,17 +2,19 @@
 import Base from '../../layouts/Base.astro';
 import SongEntry from '../../components/SongEntry.astro';
 import Comments from '../../components/Comments.astro';
-import { getWeeks, artistLabel, weekHref, type Week } from '../../lib/weeks';
+import { getWeeks, artistLabel, weekHref, hasPage, type Week } from '../../lib/weeks';
 
 export async function getStaticPaths() {
-  const weeks = await getWeeks(); // newest first
-  return weeks.map((entry, i) => ({
+  const all = await getWeeks(); // newest first
+  const latestWeek = all[0]?.data.week;
+  const paged = all.filter(hasPage); // legacy weeks get no page
+  return paged.map((entry, i) => ({
     params: { week: String(entry.data.week) },
     props: {
       entry,
-      newer: weeks[i - 1] ?? null,
-      older: weeks[i + 1] ?? null,
-      isLatest: i === 0,
+      newer: paged[i - 1] ?? null,
+      older: paged[i + 1] ?? null,
+      isCurrent: entry.data.week === latestWeek,
     },
   }));
 }
@@ -21,23 +23,25 @@ interface Props {
   entry: Week;
   newer: Week | null;
   older: Week | null;
-  isLatest: boolean;
+  isCurrent: boolean;
 }
-const { entry, newer, older, isLatest } = Astro.props;
+const { entry, newer, older, isCurrent } = Astro.props;
 ---
 <Base
   title={`${entry.data.title} by ${artistLabel(entry)}`}
   description={`Week ${entry.data.week}: ${entry.data.title} by ${artistLabel(entry)}, scored ${entry.data.score.toFixed(1)}/10.`}
 >
-  {isLatest && <p class="current-note">This is the current song of the week.</p>}
+  {isCurrent && <p class="current-note">This is the current song of the week.</p>}
   <SongEntry entry={entry} />
 
-  <nav class="week-nav" aria-label="Other weeks">
-    {older ? <a href={weekHref(older.data.week)} rel="prev">Week {older.data.week}: {older.data.title}</a> : <span></span>}
-    {newer && <a href={weekHref(newer.data.week)} rel="next">Week {newer.data.week}: {newer.data.title}</a>}
-  </nav>
+  {(older || newer) && (
+    <nav class="week-nav" aria-label="Other weeks">
+      {older ? <a href={weekHref(older.data.week)} rel="prev">Week {older.data.week}: {older.data.title}</a> : <span></span>}
+      {newer && <a href={weekHref(newer.data.week)} rel="next">Week {newer.data.week}: {newer.data.title}</a>}
+    </nav>
+  )}
 
-  <Comments week={entry.data.week} />
+  <Comments week={entry.data.week} closed={!isCurrent} />
 </Base>
 
 <style>

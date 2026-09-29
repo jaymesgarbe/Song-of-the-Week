@@ -38,6 +38,8 @@ const weeks = defineCollection({
       .optional(),
     // Weeks can exist as files before they go live
     draft: z.boolean().default(false),
+    // Imported from the old site: score only, no page, not clickable in the archive
+    legacy: z.boolean().default(false),
   }),
 });
 

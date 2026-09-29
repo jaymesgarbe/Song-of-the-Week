@@ -25,7 +25,9 @@ git add -A; git commit -m "Week 88"; git push
 Pushing triggers a Cloudflare Pages rebuild. The homepage always shows the highest
 published week number; everything else is in the archive. Stats are computed at build time.
 
-Only `week`, `title`, `artist`, `score` are required. `artist` can be a list for
+Only `week`, `title`, `artist`, `score` are required. Weeks 1–87 have `legacy: true`:
+they appear in the archive with a Legacy label but get no page and aren't clickable.
+New weeks never need that field. `artist` can be a list for
 collaborations: `artist: ["Molly Lewis", "Thee Sacred Souls"]`.
 `favorite.youtubeId` embeds the song starting at `favorite.timestamp`.
 
@@ -67,6 +69,9 @@ Admin page locally: http://localhost:8788/admin (allowed by `DEV_ADMIN_BYPASS`, 
 
 ## Comments
 
+- Only the current (highest) week accepts comments. Once a new week is published, older
+  weeks show their comments read-only. The API enforces this too, by reading the built
+  `/current-week.json`.
 - Live immediately. Guards: Turnstile, 3 posts per hashed IP per 10 min, length caps, links rejected.
 - `private_name` is optional and only returned by the admin API.
 - Raw IPs are never stored, only `SHA-256(IP_SALT + ip)`.

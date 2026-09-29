@@ -1,10 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getWeeks, computeStats, artistsOf, artistLabel, formatScore, weekHref } from '../lib/weeks';
+import { getWeeks, computeStats, artistsOf, artistLabel, formatScore, weekHref, hasPage } from '../lib/weeks';
 
 const weeks = await getWeeks();
 const stats = computeStats(weeks);
 const mostPicked = stats.topArtists.filter((a) => a.count === stats.topArtists[0]?.count);
+const legacyCount = weeks.filter((w) => !hasPage(w)).length;
 const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.localeCompare(b));
 ---
 <Base title="Archive" description={`All ${stats.count} songs of the week, with scores.`}>
@@ -19,7 +20,7 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
         <dd>
           {formatScore(stats.highest[0].data.score)}:{' '}
           {stats.highest.map((w, i) => (
-            <>{i > 0 && ', '}<a href={weekHref(w.data.week)}>{w.data.title}</a></>
+            <>{i > 0 && ', '}{hasPage(w) ? <a href={weekHref(w.data.week)}>{w.data.title}</a> : w.data.title}</>
           ))}
         </dd>
       </div>
@@ -45,6 +46,12 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
       </label>
     </div>
 
+    {legacyCount > 0 && (
+      <p class="legacy-note muted">
+        Weeks marked Legacy are from the original site and only have a score.
+      </p>
+    )}
+
     <div class="table-wrap">
       <table id="archive-table">
         <thead>
@@ -58,6 +65,7 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
         <tbody>
           {weeks.map((w) => (
             <tr
+              class={hasPage(w) ? undefined : 'is-legacy'}
               data-week={w.data.week}
               data-title={w.data.title.toLowerCase()}
               data-artist={artistLabel(w).toLowerCase()}
@@ -65,7 +73,11 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
               data-score={w.data.score}
             >
               <td>{w.data.week}</td>
-              <td><a href={weekHref(w.data.week)}>{w.data.title}</a></td>
+              <td>
+                {hasPage(w)
+                  ? <a href={weekHref(w.data.week)}>{w.data.title}</a>
+                  : <>{w.data.title} <span class="legacy-tag">Legacy</span></>}
+              </td>
               <td>{artistLabel(w)}</td>
               <td class="num">{formatScore(w.data.score)}</td>
             </tr>
@@ -159,4 +171,10 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
   th[aria-sort='descending'] button::after { content: ' ▼'; font-size: 0.7em; }
   .num { text-align: right; font-variant-numeric: tabular-nums; }
   td:first-child { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .legacy-note { margin: var(--space-3) 0 0; font-size: 0.875rem; }
+  .legacy-tag {
+    margin-left: 0.5rem; padding: 0 0.375rem;
+    border: 1px solid var(--line); font-size: 0.75rem; color: var(--muted);
+    white-space: nowrap;
+  }
 </style>

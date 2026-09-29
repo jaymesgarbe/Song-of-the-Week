@@ -1,4 +1,4 @@
-import { type Env, json, error, sha256Hex, parseWeek } from '../_shared';
+import { type Env, json, error, sha256Hex, parseWeek, getCurrentWeek } from '../_shared';
 
 const LIMITS = {
   displayName: 40,
@@ -48,6 +48,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const week = parseWeek(payload.week);
   if (!week) return error('A valid week number is required.', 400);
+
+  // Only the current week accepts comments; archived weeks are read-only.
+  const currentWeek = await getCurrentWeek(request, env);
+  if (currentWeek === null) return error("Comments are unavailable right now. Try again in a minute.", 503);
+  if (week !== currentWeek) return error('Comments closed when this week was archived.', 403);
 
   const displayName = clean(payload.display_name) || 'Anonymous';
   const privateName = clean(payload.private_name) || null;

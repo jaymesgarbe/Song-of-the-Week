@@ -1,5 +1,6 @@
 export interface Env {
   DB: D1Database;
+  ASSETS: Fetcher;
   TURNSTILE_SECRET: string;
   IP_SALT: string;
   ACCESS_TEAM_DOMAIN: string;
@@ -26,4 +27,15 @@ export async function sha256Hex(input: string): Promise<string> {
 export function parseWeek(raw: unknown): number | null {
   const n = typeof raw === 'string' ? Number(raw) : raw;
   return typeof n === 'number' && Number.isInteger(n) && n > 0 && n < 100000 ? n : null;
+}
+
+/** The week currently accepting comments, from the built /current-week.json. */
+export async function getCurrentWeek(request: Request, env: Env): Promise<number | null> {
+  try {
+    const res = await env.ASSETS.fetch(new URL('/current-week.json', request.url));
+    if (!res.ok) return null;
+    return parseWeek(((await res.json()) as { week?: unknown }).week);
+  } catch {
+    return null;
+  }
 }
