@@ -1,0 +1,103 @@
+---
+// Protected by Cloudflare Access on /admin* and /api/admin/*. See README.
+import Base from '../layouts/Base.astro';
+---
+<Base title="Comment admin" noindex>
+  <section>
+    <h1>Comments</h1>
+    <div class="admin-controls">
+      <label>
+        Week
+        <input type="number" id="admin-week" min="1" placeholder="All weeks" />
+      </label>
+      <button type="button" id="admin-refresh">Refresh</button>
+    </div>
+    <p id="admin-status" class="muted" role="status"></p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Week</th>
+            <th scope="col">Shown as</th>
+            <th scope="col">Real name</th>
+            <th scope="col">Comment</th>
+            <th scope="col">Posted</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="admin-rows"></tbody>
+      </table>
+    </div>
+  </section>
+</Base>
+
+<script>
+  type AdminComment = {
+    id: number; week: number; display_name: string; private_name: string | null;
+    body: string; ip_hash: string; status: 'visible' | 'hidden'; created_at: string;
+  };
+
+  const rows = document.getElementById('admin-rows')!;
+  const status = document.getElementById('admin-status')!;
+  const weekInput = document.getElementById('admin-week') as HTMLInputElement;
+
+  function cell(text: string) {
+    const td = document.createElement('td');
+    td.textContent = text;
+    return td;
+  }
+
+  async function setStatus(id: number, next: 'visible' | 'hidden') {
+    const res = await fetch('/api/admin/comments', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: next }),
+    });
+    if (!res.ok) status.textContent = `Couldn't update comment ${id} (HTTP ${res.status}).`;
+    await load();
+  }
+
+  async function load() {
+    const q = weekInput.value ? `?week=${weekInput.value}` : '';
+    const res = await fetch(`/api/admin/comments${q}`);
+    if (!res.ok) {
+      status.textContent = `Couldn't load comments (HTTP ${res.status}). Check that you're signed in through Cloudflare Access.`;
+      return;
+    }
+    const data: { comments: AdminComment[] } = await res.json();
+    status.textContent = `${data.comments.length} comments`;
+    rows.replaceChildren(...data.comments.map((c) => {
+      const tr = document.createElement('tr');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = c.status === 'visible' ? 'Hide' : 'Show';
+      btn.addEventListener('click', () => setStatus(c.id, c.status === 'visible' ? 'hidden' : 'visible'));
+      const actions = document.createElement('td');
+      actions.append(`${c.status} `, btn);
+      tr.append(
+        cell(String(c.week)),
+        cell(c.display_name),
+        cell(c.private_name ?? ''),
+        cell(c.body),
+        cell(new Date(c.created_at).toLocaleString()),
+        actions,
+      );
+      if (c.status === 'hidden') tr.classList.add('is-hidden');
+      return tr;
+    }));
+  }
+
+  document.getElementById('admin-refresh')!.addEventListener('click', load);
+  load();
+</script>
+
+<style>
+  .admin-controls { display: flex; gap: var(--space-2); align-items: end; margin-top: var(--space-3); }
+  .admin-controls label { display: grid; gap: 0.25rem; font-size: 0.875rem; }
+  .admin-controls input, .admin-controls button { font: inherit; padding: 0.5rem; }
+  .table-wrap { overflow-x: auto; margin-top: var(--space-2); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.5rem; border-bottom: 1px solid var(--line); }
+  td:nth-child(4) { white-space: pre-wrap; min-width: 20rem; }
+  :global(tr.is-hidden) { opacity: 0.5; }
+</style>

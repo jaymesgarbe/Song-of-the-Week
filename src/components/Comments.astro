@@ -1,0 +1,158 @@
+---
+interface Props {
+  week: number;
+}
+const { week } = Astro.props;
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+<section class="comments" data-week={week} aria-labelledby="comments-heading">
+  <h2 id="comments-heading">Comments</h2>
+
+  <ol class="comment-list" aria-live="polite"></ol>
+  <p class="comment-status muted" role="status">Loading comments…</p>
+
+  <form class="comment-form" novalidate>
+    <h3>Leave a comment</h3>
+
+    <label>
+      Name shown with your comment
+      <input name="display_name" maxlength="40" placeholder="Anonymous" autocomplete="nickname" />
+    </label>
+
+    <label>
+      Your real name <span class="muted">(optional, never shown publicly)</span>
+      <input name="private_name" maxlength="80" autocomplete="name" />
+    </label>
+
+    <label>
+      Comment
+      <textarea name="body" required maxlength="2000" rows="5"></textarea>
+    </label>
+
+    <div class="cf-turnstile" data-sitekey={siteKey}></div>
+
+    <button type="submit">Post comment</button>
+    <p class="form-error" role="alert" hidden></p>
+    <p class="privacy muted">
+      Only your chosen name and comment are public. Your real name, if given, is visible only to me.
+      Links aren't allowed in comments.
+    </p>
+  </form>
+</section>
+
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  type PublicComment = { id: number; display_name: string; body: string; created_at: string };
+
+  const root = document.querySelector<HTMLElement>('.comments')!;
+  const week = Number(root.dataset.week);
+  const list = root.querySelector<HTMLOListElement>('.comment-list')!;
+  const status = root.querySelector<HTMLParagraphElement>('.comment-status')!;
+  const form = root.querySelector<HTMLFormElement>('.comment-form')!;
+  const errorEl = root.querySelector<HTMLParagraphElement>('.form-error')!;
+  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+  const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  // Built with textContent only, so comment text can never inject HTML.
+  function renderComment(c: PublicComment): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'comment';
+    const head = document.createElement('p');
+    head.className = 'comment-head';
+    const name = document.createElement('strong');
+    name.textContent = c.display_name;
+    const time = document.createElement('time');
+    time.dateTime = c.created_at;
+    time.textContent = dateFmt.format(new Date(c.created_at));
+    time.className = 'muted';
+    head.append(name, ' ', time);
+    const body = document.createElement('p');
+    body.className = 'comment-body';
+    body.textContent = c.body;
+    li.append(head, body);
+    return li;
+  }
+
+  function updateStatus() {
+    status.hidden = list.children.length > 0;
+    status.textContent = 'No comments yet. Start the conversation.';
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(`/api/comments?week=${week}`);
+      if (!res.ok) throw new Error();
+      const data: { comments: PublicComment[] } = await res.json();
+      list.replaceChildren(...data.comments.map(renderComment));
+      updateStatus();
+    } catch {
+      status.textContent = "Comments couldn't load. Refresh the page to try again.";
+    }
+  }
+
+  function showError(msg: string) {
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    const fd = new FormData(form);
+    const body = String(fd.get('body') ?? '').trim();
+    if (!body) return showError('Write a comment before posting.');
+    const token = String(fd.get('cf-turnstile-response') ?? '');
+    if (!token) return showError('Complete the verification check, then post again.');
+
+    button.disabled = true;
+    button.textContent = 'Posting…';
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          week,
+          display_name: fd.get('display_name'),
+          private_name: fd.get('private_name'),
+          body,
+          turnstile_token: token,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Your comment didn’t post. Try again.');
+      list.append(renderComment(data.comment));
+      updateStatus();
+      form.reset();
+    } catch (err) {
+      showError((err as Error).message);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Post comment';
+      (window as any).turnstile?.reset();
+    }
+  });
+
+  load();
+</script>
+
+<style>
+  .comments { max-width: var(--measure); }
+  .comments h2 { font-size: 1.5rem; }
+  .comment-list { list-style: none; padding: 0; margin: var(--space-3) 0 0; }
+  .comment-list :global(.comment) { padding-block: var(--space-2); border-top: 1px solid var(--line); }
+  .comment-list :global(.comment-head) { margin: 0; font-size: 0.9375rem; }
+  .comment-list :global(.comment-body) { margin: var(--space-1) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .comment-status { margin: var(--space-2) 0 0; }
+
+  .comment-form { margin-top: var(--space-4); display: grid; gap: var(--space-2); }
+  .comment-form h3 { font-size: 1.125rem; }
+  .comment-form label { display: grid; gap: 0.25rem; font-size: 0.9375rem; }
+  .comment-form input, .comment-form textarea {
+    font: inherit; padding: 0.625rem; border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+  }
+  .comment-form button { justify-self: start; font: inherit; padding: 0.625rem 1.25rem; cursor: pointer; }
+  .form-error { margin: 0; color: #b00020; }
+  .privacy { margin: 0; font-size: 0.8125rem; }
+</style>

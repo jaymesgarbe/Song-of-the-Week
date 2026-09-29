@@ -1,0 +1,35 @@
+---
+import { type Week, artistLabel, formatScore, weekHref } from '../lib/weeks';
+
+interface Props {
+  weeks: Week[];
+}
+const { weeks } = Astro.props;
+---
+<ul class="week-list">
+  {weeks.map((w) => (
+    <li>
+      <a href={weekHref(w.data.week)}>
+        {w.data.cover
+          ? <img src={w.data.cover} alt="" width="300" height="300" loading="lazy" />
+          : <span class="cover-placeholder" aria-hidden="true"></span>}
+        <span class="wl-title">{w.data.title}</span>
+        <span class="wl-artist muted">{artistLabel(w)}</span>
+        <span class="wl-meta muted">Week {w.data.week}, {formatScore(w.data.score)}</span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .week-list {
+    list-style: none; padding: 0; margin: var(--space-3) 0 0;
+    display: grid; gap: var(--space-3);
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  }
+  .week-list a { display: grid; gap: 0.125rem; text-decoration: none; }
+  .week-list img, .cover-placeholder { width: 100%; aspect-ratio: 1; object-fit: cover; margin-bottom: var(--space-1); }
+  .cover-placeholder { display: block; background: var(--line); }
+  .wl-title { font-weight: 600; }
+  .wl-artist, .wl-meta { font-size: 0.875rem; }
+</style>

@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import SongEntry from '../components/SongEntry.astro';
+import Comments from '../components/Comments.astro';
+import WeekList from '../components/WeekList.astro';
+import { getWeeks, artistLabel } from '../lib/weeks';
+
+const weeks = await getWeeks();
+const [latest, ...rest] = weeks;
+const recent = rest.slice(0, 4);
+---
+<Base description={`This week: ${latest.data.title} by ${artistLabel(latest)}.`}>
+  <SongEntry entry={latest} />
+
+  {recent.length > 0 && (
+    <section aria-labelledby="recent-heading">
+      <div class="section-head">
+        <h2 id="recent-heading">Previous weeks</h2>
+        <a href="/archive">See all {weeks.length} weeks</a>
+      </div>
+      <WeekList weeks={recent} />
+    </section>
+  )}
+
+  <Comments week={latest.data.week} />
+</Base>
+
+<style>
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+  .section-head h2 { font-size: 1.5rem; }
+</style>

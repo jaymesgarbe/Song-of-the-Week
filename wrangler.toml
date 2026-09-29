@@ -1,0 +1,19 @@
+# Cloudflare Pages project config (static site + Pages Functions in /functions)
+name = "song-of-the-week"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sotw-comments"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+migrations_dir = "migrations"
+
+[vars]
+# Cloudflare Access (Zero Trust) settings for the /admin routes
+ACCESS_TEAM_DOMAIN = "REPLACE_ME.cloudflareaccess.com"
+ACCESS_AUD = "REPLACE_WITH_APPLICATION_AUD_TAG"
+
+# Secrets (set with `wrangler pages secret put <NAME>`, and in .dev.vars locally):
+#   TURNSTILE_SECRET
+#   IP_SALT

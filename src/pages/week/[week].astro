@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import SongEntry from '../../components/SongEntry.astro';
+import Comments from '../../components/Comments.astro';
+import { getWeeks, artistLabel, weekHref, type Week } from '../../lib/weeks';
+
+export async function getStaticPaths() {
+  const weeks = await getWeeks(); // newest first
+  return weeks.map((entry, i) => ({
+    params: { week: String(entry.data.week) },
+    props: {
+      entry,
+      newer: weeks[i - 1] ?? null,
+      older: weeks[i + 1] ?? null,
+      isLatest: i === 0,
+    },
+  }));
+}
+
+interface Props {
+  entry: Week;
+  newer: Week | null;
+  older: Week | null;
+  isLatest: boolean;
+}
+const { entry, newer, older, isLatest } = Astro.props;
+---
+<Base
+  title={`${entry.data.title} by ${artistLabel(entry)}`}
+  description={`Week ${entry.data.week}: ${entry.data.title} by ${artistLabel(entry)}, scored ${entry.data.score.toFixed(1)}/10.`}
+>
+  {isLatest && <p class="current-note">This is the current song of the week.</p>}
+  <SongEntry entry={entry} />
+
+  <nav class="week-nav" aria-label="Other weeks">
+    {older ? <a href={weekHref(older.data.week)} rel="prev">Week {older.data.week}: {older.data.title}</a> : <span></span>}
+    {newer && <a href={weekHref(newer.data.week)} rel="next">Week {newer.data.week}: {newer.data.title}</a>}
+  </nav>
+
+  <Comments week={entry.data.week} />
+</Base>
+
+<style>
+  .current-note { margin: 0 0 var(--space-2); }
+  .week-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); }
+</style>

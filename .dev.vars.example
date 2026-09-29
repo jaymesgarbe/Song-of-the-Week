@@ -1,0 +1,6 @@
+# Copy to .dev.vars for local `npm run preview`. Never commit .dev.vars.
+# Cloudflare's always-pass Turnstile test secret:
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+IP_SALT=local-dev-salt-change-me
+# Skips the Cloudflare Access check on /api/admin locally. Never set in production.
+DEV_ADMIN_BYPASS=true
