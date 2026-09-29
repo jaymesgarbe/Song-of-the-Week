@@ -155,21 +155,41 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 <style>
   .comments { max-width: var(--measure); }
-  .comments h2 { font-size: 1.5rem; }
   .comment-list { list-style: none; padding: 0; margin: var(--space-3) 0 0; }
-  .comment-list :global(.comment) { padding-block: var(--space-2); border-top: 1px solid var(--line); }
+  .comment-list :global(.comment) { padding-block: var(--space-2); border-top: 1.5px dashed var(--rule); }
+  .comment-list :global(.comment:last-child) { border-bottom: 1.5px dashed var(--rule); }
   .comment-list :global(.comment-head) { margin: 0; font-size: 0.9375rem; }
-  .comment-list :global(.comment-body) { margin: var(--space-1) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .comment-list :global(.comment-head strong) { font-family: var(--font-display); font-weight: 400; font-size: 1rem; }
+  .comment-list :global(.comment-body) { margin: 0.25rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .comment-status { margin: var(--space-2) 0 0; }
-  .closed-note { margin: var(--space-4) 0 0; padding-top: var(--space-2); border-top: 1px solid var(--line); }
+  .closed-note { margin: var(--space-4) 0 0; font-weight: 700; }
 
-  .comment-form { margin-top: var(--space-4); display: grid; gap: var(--space-2); }
-  .comment-form h3 { font-size: 1.125rem; }
-  .comment-form label { display: grid; gap: 0.25rem; font-size: 0.9375rem; }
-  .comment-form input, .comment-form textarea {
-    font: inherit; padding: 0.625rem; border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+  /* Guestbook form */
+  .comment-form { margin-top: var(--space-4); display: grid; gap: var(--space-3); }
+  .comment-form h3 { font-size: 1.375rem; }
+  .comment-form label { display: grid; gap: 0.25rem; font-size: 0.9375rem; font-weight: 700; }
+  .comment-form label .muted { font-weight: 400; }
+  .comment-form input {
+    padding: 0.4rem 0; border: 0; border-bottom: 2px solid var(--ink);
+    background: transparent; border-radius: 0;
   }
-  .comment-form button { justify-self: start; font: inherit; padding: 0.625rem 1.25rem; cursor: pointer; }
-  .form-error { margin: 0; color: #b00020; }
+  .comment-form textarea {
+    padding: 0.2rem 0; border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; resize: vertical;
+    line-height: 2rem;
+    background: repeating-linear-gradient(transparent 0 calc(2rem - 1px), var(--rule) calc(2rem - 1px) 2rem);
+    background-attachment: local;
+  }
+  .comment-form input:focus, .comment-form textarea:focus { outline: none; border-bottom-color: var(--blue); }
+  .comment-form input:focus-visible, .comment-form textarea:focus-visible { box-shadow: 0 2px 0 var(--blue); }
+  .comment-form button {
+    justify-self: start;
+    padding: 0.55rem 1.1rem 0.5rem;
+    border: 0; background: var(--ink); color: var(--paper);
+    font-family: var(--font-display); font-size: 1rem;
+    cursor: pointer; transform: rotate(-1deg);
+  }
+  .comment-form button:hover { background: var(--blue); }
+  .comment-form button:disabled { opacity: 0.6; cursor: progress; }
+  .form-error { margin: 0; color: #b0005f; font-weight: 700; }
   .privacy { margin: 0; font-size: 0.8125rem; }
 </style>

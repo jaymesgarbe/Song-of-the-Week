@@ -1,15 +1,18 @@
 ---
-import { SITE } from '../lib/site';
+import Doodles from '../components/Doodles.astro';
 
 interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  /** How many doodles to scatter on this page */
+  doodles?: number;
 }
 const {
   title,
   description = 'A new song every week, with a score and my favorite moment.',
   noindex = false,
+  doodles = 14,
 } = Astro.props;
 const fullTitle = title ? `${title} | Song of the Week` : 'Song of the Week';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -24,8 +27,15 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap"
+    />
   </head>
   <body>
+    <Doodles count={doodles} />
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
       <a class="wordmark" href="/">Song of the Week</a>
@@ -37,50 +47,68 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <main id="main">
       <slot />
     </main>
-    <footer class="site-footer">
-      <p>Picked and scored by {SITE.author.name}.</p>
-    </footer>
   </body>
 </html>
 
 <style is:global>
-  /* Structural styles only. Aesthetic pass comes later: swap the tokens below. */
   :root {
-    --bg: #ffffff;
-    --fg: #1a1a1a;
-    --muted: #666666;
-    --line: #dddddd;
-    --accent: #1a1a1a;
-    --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-display: var(--font-body);
+    /* Paper and inks */
+    --paper: #eeeee9;
+    --ink: #1f1e1c;
+    --ink-soft: #5b5954;        /* secondary text */
+    --rule: #c9c8c1;            /* ruled lines */
+    --pink: #ff48b0;            /* riso fluorescent pink */
+    --blue: #0078bf;            /* riso blue */
+    --tape: rgba(222, 212, 180, 0.72);
 
-    --measure: 68ch;          /* max line length for review text */
-    --page: 1040px;           /* max page width */
-    --gutter: clamp(1rem, 4vw, 2rem);
+    /* Type */
+    --font-display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+    --font-body: 'Courier Prime', 'Courier New', Courier, monospace;
+
+    /* Aliases used by components */
+    --bg: var(--paper);
+    --fg: var(--ink);
+    --muted: var(--ink-soft);
+    --line: var(--rule);
+    --accent: var(--blue);
+
+    /* Layout */
+    --measure: 64ch;
+    --page: 1000px;
+    --gutter: clamp(1.25rem, 5vw, 2.5rem);
     --space-1: 0.5rem;
     --space-2: 1rem;
     --space-3: 1.5rem;
     --space-4: 2.5rem;
-    --space-section: clamp(3rem, 8vw, 6rem);  /* between major sections */
+    --space-section: clamp(3.5rem, 9vw, 6.5rem);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
+    position: relative;
+    min-height: 100vh;
     margin: 0;
-    background: var(--bg);
-    color: var(--fg);
+    background-color: var(--paper);
+    /* Photocopy grain */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    color: var(--ink);
     font-family: var(--font-body);
-    line-height: 1.6;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    overflow-x: hidden;
   }
   img { max-width: 100%; height: auto; display: block; }
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  a { color: inherit; text-decoration-color: var(--pink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--blue); }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 
   .skip { position: absolute; left: -9999px; }
-  .skip:focus { left: var(--gutter); top: var(--space-1); background: var(--bg); padding: var(--space-1); }
+  .skip:focus { left: var(--gutter); top: var(--space-1); background: var(--paper); padding: var(--space-1); z-index: 10; }
 
-  .site-header, main, .site-footer {
+  .site-header, main {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: var(--page);
     margin-inline: auto;
@@ -89,25 +117,63 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .site-header {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    padding-block: var(--space-3);
+    padding-block: var(--space-4) var(--space-3);
   }
-  .wordmark { font-family: var(--font-display); font-weight: 700; text-decoration: none; }
+
+  /* Label-maker tape */
+  .wordmark {
+    display: inline-block;
+    padding: 0.35rem 0.8rem 0.3rem;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transform: rotate(-1.5deg);
+  }
+  .wordmark:hover { color: var(--paper); background: var(--blue); }
   .site-header nav { display: flex; gap: var(--space-3); }
-  .site-header nav a { text-decoration: none; color: var(--muted); }
-  .site-header nav a[aria-current='page'] { color: var(--fg); text-decoration: underline; text-underline-offset: 4px; }
+  .site-header nav a { text-decoration: none; color: var(--ink-soft); }
+  .site-header nav a[aria-current='page'] {
+    color: var(--ink);
+    text-decoration: underline wavy var(--pink);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
+  }
 
   main > * + * { margin-top: var(--space-section); }
-  .site-footer { padding-block: var(--space-section) var(--space-4); color: var(--muted); font-size: 0.875rem; }
+  main { padding-bottom: var(--space-section); }
 
-  h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; margin: 0; }
-  .muted { color: var(--muted); }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.05; margin: 0; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  .muted { color: var(--ink-soft); }
   .visually-hidden {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); white-space: nowrap;
   }
+
+  /* Rubber-stamp tag (Legacy, etc.) */
+  .legacy-tag {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+    border: 1.5px solid var(--blue);
+    color: var(--blue);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.5;
+    transform: rotate(-3deg);
+    white-space: nowrap;
+  }
+
+  /* Form controls: writing on a line */
+  input, textarea, select { font: inherit; color: var(--ink); }
+  button { font: inherit; }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   }

@@ -8,7 +8,7 @@ const mostPicked = stats.topArtists.filter((a) => a.count === stats.topArtists[0
 const legacyCount = weeks.filter((w) => !hasPage(w)).length;
 const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.localeCompare(b));
 ---
-<Base title="Archive" description={`All ${stats.count} songs of the week, with scores.`}>
+<Base title="Archive" doodles={24} description={`All ${stats.count} songs of the week, with scores.`}>
   <section aria-labelledby="archive-heading">
     <h1 id="archive-heading">Archive</h1>
 
@@ -149,32 +149,37 @@ const allArtists = [...new Set(weeks.flatMap(artistsOf))].sort((a, b) => a.local
 </script>
 
 <style>
-  h1 { font-size: clamp(2rem, 6vw, 3rem); }
+  h1 { font-size: clamp(3rem, 10vw, 5.5rem); line-height: 0.95; }
   .stats {
     display: grid; gap: var(--space-2) var(--space-4);
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    margin: var(--space-3) 0 0;
+    margin: var(--space-4) 0 0;
   }
-  .stats dt { color: var(--muted); font-size: 0.875rem; }
-  .stats dd { margin: 0; font-size: 1.125rem; }
+  .stats dt { color: var(--ink-soft); font-size: 0.875rem; }
+  .stats dd { margin: 0; font-family: var(--font-display); font-size: 1.375rem; line-height: 1.2; }
+  .stats dd a { text-decoration-thickness: 3px; }
 
-  .controls { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
-  .controls label { display: grid; gap: 0.25rem; font-size: 0.875rem; }
-  .controls input, .controls select { font: inherit; padding: 0.5rem; min-width: 14rem; }
+  .controls { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-4); }
+  .controls label { display: grid; gap: 0.25rem; font-size: 0.875rem; font-weight: 700; }
+  .controls input, .controls select {
+    padding: 0.4rem 0; min-width: 14rem;
+    border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; background: transparent;
+  }
+  .controls input:focus, .controls select:focus { outline: none; border-bottom-color: var(--blue); }
+
+  .legacy-note { margin: var(--space-3) 0 0; font-size: 0.875rem; }
 
   .table-wrap { overflow-x: auto; margin-top: var(--space-3); }
   table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 0.625rem 0.75rem 0.625rem 0; border-bottom: 1px solid var(--line); }
-  th button { all: unset; cursor: pointer; font-weight: 600; }
-  th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  th[aria-sort='ascending'] button::after { content: ' ▲'; font-size: 0.7em; }
-  th[aria-sort='descending'] button::after { content: ' ▼'; font-size: 0.7em; }
+  thead th { border-bottom: 2px solid var(--ink); }
+  th, td { text-align: left; padding: 0.6rem 0.75rem 0.6rem 0; }
+  td { border-bottom: 1.5px dashed var(--rule); }
+  th button { all: unset; cursor: pointer; font-family: var(--font-display); font-size: 0.9375rem; }
+  th button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  th[aria-sort='ascending'] button::after { content: ' \2191'; font-family: var(--font-body); }
+  th[aria-sort='descending'] button::after { content: ' \2193'; font-family: var(--font-body); }
   .num { text-align: right; font-variant-numeric: tabular-nums; }
-  td:first-child { font-variant-numeric: tabular-nums; color: var(--muted); }
-  .legacy-note { margin: var(--space-3) 0 0; font-size: 0.875rem; }
-  .legacy-tag {
-    margin-left: 0.5rem; padding: 0 0.375rem;
-    border: 1px solid var(--line); font-size: 0.75rem; color: var(--muted);
-    white-space: nowrap;
-  }
+  td.num { font-weight: 700; }
+  td:first-child { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+  tbody tr:hover td { background: rgba(0, 120, 191, 0.07); }
 </style>

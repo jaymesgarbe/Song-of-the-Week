@@ -12,7 +12,7 @@ const { weeks } = Astro.props;
       <>
         {w.data.cover
           ? <img src={w.data.cover} alt="" width="300" height="300" loading="lazy" />
-          : <span class="cover-placeholder" aria-hidden="true"></span>}
+          : <span class="cover-placeholder" aria-hidden="true">{w.data.week}</span>}
         <span class="wl-title">{w.data.title}</span>
         <span class="wl-artist muted">{artistLabel(w)}</span>
         <span class="wl-meta muted">
@@ -34,16 +34,21 @@ const { weeks } = Astro.props;
 <style>
   .week-list {
     list-style: none; padding: 0; margin: var(--space-3) 0 0;
-    display: grid; gap: var(--space-3);
+    display: grid; gap: var(--space-4) var(--space-3);
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
+  .week-list li:nth-child(odd) .wl-item { transform: rotate(-1.5deg); }
+  .week-list li:nth-child(even) .wl-item { transform: rotate(1.25deg); }
   .wl-item { display: grid; gap: 0.125rem; text-decoration: none; }
   .wl-item img, .cover-placeholder { width: 100%; aspect-ratio: 1; object-fit: cover; margin-bottom: var(--space-1); }
-  .cover-placeholder { display: block; background: var(--line); }
-  .wl-title { font-weight: 600; }
-  .wl-artist, .wl-meta { font-size: 0.875rem; }
-  .legacy-tag {
-    margin-left: 0.5rem; padding: 0 0.375rem;
-    border: 1px solid var(--line); font-size: 0.75rem;
+  .wl-item img { box-shadow: 2px 3px 0 rgba(31, 30, 28, 0.18); }
+  .cover-placeholder {
+    display: grid; place-items: center;
+    border: 2px solid var(--ink);
+    background: repeating-linear-gradient(-45deg, transparent 0 7px, rgba(0, 120, 191, 0.18) 7px 8px);
+    font-family: var(--font-display); font-size: 2.5rem;
   }
+  a.wl-item:hover .wl-title { text-decoration: underline; text-decoration-color: var(--pink); text-decoration-thickness: 2px; }
+  .wl-title { font-family: var(--font-display); font-size: 1.0625rem; line-height: 1.15; margin-top: 0.25rem; }
+  .wl-artist, .wl-meta { font-size: 0.875rem; line-height: 1.4; }
 </style>
