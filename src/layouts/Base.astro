@@ -1,4 +1,6 @@
 ---
+import { SITE } from '../lib/site';
+
 interface Props {
   title?: string;
   description?: string;
@@ -36,7 +38,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       <slot />
     </main>
     <footer class="site-footer">
-      <p>Picked and scored by Jaymes Garbe.</p>
+      <p>Picked and scored by {SITE.author.name}.</p>
     </footer>
   </body>
 </html>

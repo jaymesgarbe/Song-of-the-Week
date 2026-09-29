@@ -29,7 +29,13 @@ Only `week`, `title`, `artist`, `score` are required. Weeks 1–87 have `legacy:
 they appear in the archive with a Legacy label but get no page and aren't clickable.
 New weeks never need that field. `artist` can be a list for
 collaborations: `artist: ["Molly Lewis", "Thee Sacred Souls"]`.
-`favorite.youtubeId` embeds the song starting at `favorite.timestamp`.
+`favorite` is a plain sentence (`favorite: "The bridge"`), or `{ note, timestamp }` if you
+want to point at a moment. Paste share links into `links.spotify` and `links.youtube` exactly
+as copied from the app; each becomes an embedded player near the top of the entry. A link
+that isn't a Spotify track/album/playlist or a YouTube video fails the build with a message
+naming the field. Apple Music and Bandcamp links show as plain links.
+
+Your byline (name, optional photo and link) is set in `src/lib/site.ts`.
 
 ## Local development
 

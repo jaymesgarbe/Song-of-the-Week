@@ -23,14 +23,11 @@ date: ${today}
 album: ""
 # year: 2026
 # cover: /covers/${String(next).padStart(3, '0')}.jpg
-favorite:
-  timestamp: "0:00"
-  note: ""
-  # youtubeId: ""
-# links:
-#   spotify: ""
-#   apple: ""
-#   youtube: ""
+favorite: ""   # your favorite part, in a sentence
+links:
+  spotify: ""   # paste the share link; becomes an embedded player
+  youtube: ""   # paste the share link; the favorite-part button plays from here
+  # apple: ""
 draft: true   # set to false (or delete this line) to publish
 ---
 
