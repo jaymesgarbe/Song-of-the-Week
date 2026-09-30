@@ -9,11 +9,18 @@ export const SITE = {
     url: null as string | null,
   },
   favicon: {
-    // File name in public/doodles/ to use as the browser-tab icon, e.g. 'star.png'.
-    // null = your first doodle (alphabetically). Bold, simple shapes read best at tab size.
-    doodle: 'logo.png',
-    sticker: '#ff6c2f', // circle color (palette orange)
-    ink: '#1f1e1c',     // doodle color
-    paper: '#eeeee9',   // background for the phone home-screen icon
+    // Doodle in public/doodles/ to use as the browser-tab icon: a file name ('record.png')
+    // or just its name without extension ('record'). null = your first doodle.
+    doodle: 'record' as string | null,
+    // Circle behind the doodle, e.g. '#ff6c2f'. null = no circle, just the doodle.
+    sticker: null as string | null,
+    // Recolor the doodle, e.g. '#1f1e1c'. null = keep the drawing's own colors.
+    ink: null as string | null,
+    // Thicken lines for tiny sizes (0 = off). Keep low for detailed drawings.
+    thicken: 0,
+    // Square behind the whole icon (tab and home screen). null = transparent in the tab.
+    // Palette: orange '#ff6c2f', teal '#00838a', paper '#eeeee9'
+    background: '#ff6c2f' as string | null,
+    paper: '#eeeee9', // home-screen fallback when background is null
   },
 };
