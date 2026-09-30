@@ -12,15 +12,14 @@ export const SITE = {
     // Doodle in public/doodles/ to use as the browser-tab icon: a file name ('record.png')
     // or just its name without extension ('record'). null = your first doodle.
     doodle: 'record' as string | null,
-    // Circle behind the doodle, e.g. '#ff6c2f'. null = no circle, just the doodle.
-    sticker: null as string | null,
-    // Recolor the doodle, e.g. '#1f1e1c'. null = keep the drawing's own colors.
-    ink: null as string | null,
-    // Thicken lines for tiny sizes (0 = off). Keep low for detailed drawings.
-    thicken: 0,
-    // Square behind the whole icon (tab and home screen). null = transparent in the tab.
+    // Color that shows through the gaps in the drawing. null = transparent.
     // Palette: orange '#ff6c2f', teal '#00838a', paper '#eeeee9'
     background: '#ff6c2f' as string | null,
-    paper: '#eeeee9', // home-screen fallback when background is null
+    // 'circle': the drawing is cropped to its edges and fills a round icon (made for the record).
+    // 'square': the drawing sits inside a rounded square.
+    shape: 'circle' as 'circle' | 'square',
+    // Recolor the drawing, e.g. '#1f1e1c'. null = keep its own colors.
+    ink: null as string | null,
+    paper: '#eeeee9', // home-screen icon background around a circle
   },
 };
