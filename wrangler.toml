@@ -11,8 +11,8 @@ migrations_dir = "migrations"
 
 [vars]
 # Cloudflare Access (Zero Trust) settings for the /admin routes
-ACCESS_TEAM_DOMAIN = "REPLACE_ME.cloudflareaccess.com"
-ACCESS_AUD = "REPLACE_WITH_APPLICATION_AUD_TAG"
+ACCESS_TEAM_DOMAIN = "young-leaf-f738.cloudflareaccess.com"
+ACCESS_AUD = "cc62a4ea1d4bf225f9199a64f491f4839453c058f495319b5db23730c87e1e42"
 
 # Secrets (set with `wrangler pages secret put <NAME>`, and in .dev.vars locally):
 #   TURNSTILE_SECRET

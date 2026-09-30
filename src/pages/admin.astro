@@ -53,7 +53,10 @@ import Base from '../layouts/Base.astro';
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: next }),
     });
-    if (!res.ok) status.textContent = `Couldn't update comment ${id} (HTTP ${res.status}).`;
+    if (!res.ok) {
+      const detail = await res.json().then((d) => d.error).catch(() => null);
+      status.textContent = `Couldn't update comment ${id} (HTTP ${res.status}). ${detail ?? ''}`;
+    }
     await load();
   }
 
@@ -61,7 +64,8 @@ import Base from '../layouts/Base.astro';
     const q = weekInput.value ? `?week=${weekInput.value}` : '';
     const res = await fetch(`/api/admin/comments${q}`);
     if (!res.ok) {
-      status.textContent = `Couldn't load comments (HTTP ${res.status}). Check that you're signed in through Cloudflare Access.`;
+      const detail = await res.json().then((d) => d.error).catch(() => null);
+      status.textContent = `Couldn't load comments (HTTP ${res.status}). ${detail ?? "Check that you're signed in through Cloudflare Access."}`;
       return;
     }
     const data: { comments: AdminComment[] } = await res.json();
