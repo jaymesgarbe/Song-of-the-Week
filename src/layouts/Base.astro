@@ -1,6 +1,5 @@
 ---
 import Doodles from '../components/Doodles.astro';
-import Wordmark from '../components/Wordmark.astro';
 
 interface Props {
   title?: string;
@@ -17,9 +16,6 @@ const {
 } = Astro.props;
 // Color palette: 'orange-teal' | 'green-violet' | 'red-navy' | 'yellow-burgundy'
 const PALETTE = 'orange-teal';
-
-// Header title style: 'ransom' | 'riso' | 'label'
-const WORDMARK: 'ransom' | 'riso' | 'label' = 'ransom';
 
 const fullTitle = title ? `${title} | Song of the Week` : 'Song of the Week';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -47,7 +43,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <Doodles count={doodles} />
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
-      <Wordmark variant={WORDMARK} large={path === '/'} />
+      <a class="wordmark" href="/">Song of the Week</a>
       <nav aria-label="Main">
         <a href="/" aria-current={path === '/' ? 'page' : undefined}>This week</a>
         <a href="/archive" aria-current={path.startsWith('/archive') ? 'page' : undefined}>Archive</a>
@@ -161,6 +157,19 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     padding-block: var(--space-4) var(--space-3);
   }
 
+  /* Label-maker tape */
+  .wordmark {
+    display: inline-block;
+    padding: 0.35rem 0.8rem 0.3rem;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transform: rotate(-1.5deg);
+  }
+  .wordmark:hover { color: var(--paper); background: var(--ink-b); }
   .site-header nav { display: flex; gap: var(--space-3); }
   .site-header nav a { text-decoration: none; color: var(--ink-soft); }
   .site-header nav a[aria-current='page'] {
