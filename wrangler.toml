@@ -6,7 +6,7 @@ compatibility_date = "2026-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "sotw-comments"
-database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+database_id = "cd631e70-f089-4e55-82d7-305c0f2a4e4a"
 migrations_dir = "migrations"
 
 [vars]
