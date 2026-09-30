@@ -50,10 +50,22 @@ function rng(seed: number) {
 const rand = rng(hash(Astro.url.pathname));
 const between = (a: number, b: number) => a + rand() * (b - a);
 
+// Never repeat a doodle next to itself: skip the previous one, and also the one
+// before it (the nearest doodle on the same side), when there are enough to choose from.
+const picks: string[] = [];
+function pickFile(): string {
+  const keep = Math.min(2, pool.length - 1); // with a single doodle, repeats are unavoidable
+  const avoid = keep > 0 ? picks.slice(-keep) : [];
+  const options = pool.filter((f) => !avoid.includes(f));
+  const file = options[Math.floor(rand() * options.length)];
+  picks.push(file);
+  return file;
+}
+
 const items = pool.length === 0 ? [] : Array.from({ length: count }, (_, i) => {
   const left = i % 2 === 0; // alternate margins
   return {
-    file: pool[Math.floor(rand() * pool.length)],
+    file: pickFile(),
     top: Math.min(98, ((i + 0.5) / count) * 100 + between(-3, 3)),
     x: left ? between(EDGE[0], EDGE[1]) : 100 - between(EDGE[0], EDGE[1]),
     size: Math.round(between(SIZE[0], SIZE[1])),
