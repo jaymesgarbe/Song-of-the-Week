@@ -4,11 +4,14 @@
 // Files named placeholder-* are only used until you add your own.
 import fs from 'node:fs';
 import path from 'node:path';
+import { BUILD_TIME } from '../lib/build';
 
 interface Props {
   count?: number;
 }
 const { count = 14 } = Astro.props;
+
+const BUILD_SEED: string = import.meta.env.DOODLE_SEED || BUILD_TIME;
 
 // Horizontal band for doodle centers, as % of page width in from each edge.
 // Raise both numbers to pull doodles toward the middle.
@@ -32,7 +35,9 @@ try {
 const own = files.filter((f) => !f.startsWith('placeholder-'));
 const pool = own.length > 0 ? own : files;
 
-// Seeded by page path, so each page has its own stable layout (no reshuffle on reload)
+// Seeded by build + page path: every deploy gets a fresh layout (which doodles,
+// where, and which ink), each page differs, and reloads don't reshuffle.
+// To lock a layout you like, set DOODLE_SEED (any text) in the build environment.
 function hash(s: string) {
   let h = 2166136261;
   for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
@@ -47,7 +52,7 @@ function rng(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const rand = rng(hash(Astro.url.pathname));
+const rand = rng(hash(`${BUILD_SEED}:${Astro.url.pathname}`));
 const between = (a: number, b: number) => a + rand() * (b - a);
 
 // Never repeat a doodle next to itself: skip the previous one, and also the one

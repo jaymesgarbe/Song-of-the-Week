@@ -84,6 +84,13 @@ Admin page locally: http://localhost:8788/admin (allowed by `DEV_ADMIN_BYPASS`, 
 - Hide/unhide from `/admin` (soft delete).
 - Tune limits in `LIMITS` at the top of `functions/api/comments.ts`.
 
+## Doodles
+
+Drop black-on-transparent PNG/SVG drawings in `public/doodles/`. Every build (so every
+deploy) picks a new layout: which doodles, where, how big, and which ink. To freeze a
+layout you like, set a `DOODLE_SEED` environment variable (any text) in the Cloudflare
+Pages build settings; remove it to go back to changing every deploy.
+
 ## Styling
 
 All visual decisions are CSS custom properties at the top of `src/layouts/Base.astro`
