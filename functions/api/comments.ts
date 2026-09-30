@@ -69,17 +69,27 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const token = typeof payload.turnstile_token === 'string' ? payload.turnstile_token : '';
   if (!token) return error('Complete the verification check, then post again.', 400);
 
-  let verified = false;
+  if (!env.TURNSTILE_SECRET) {
+    console.error('TURNSTILE_SECRET is not set on this deployment');
+    return error('Comments are misconfigured (verification secret missing).', 500);
+  }
+  let outcome: { success?: boolean; 'error-codes'?: string[]; hostname?: string };
   try {
     const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
-      body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token, remoteip: ip }),
+      body: new URLSearchParams({ secret: env.TURNSTILE_SECRET.trim(), response: token, remoteip: ip }),
     });
-    verified = ((await verify.json()) as { success?: boolean }).success === true;
+    outcome = await verify.json();
   } catch {
     return error("Verification service didn't respond. Try again in a minute.", 503);
   }
-  if (!verified) return error('Verification failed. Refresh the page and try again.', 403);
+  if (outcome.success !== true) {
+    // Turnstile's error codes are safe to show and say exactly what's wrong,
+    // e.g. invalid-input-secret (wrong secret) or invalid-input-response (key mismatch).
+    const codes = (outcome['error-codes'] ?? []).join(', ') || 'unknown';
+    console.error('Turnstile verification failed:', codes, 'hostname:', outcome.hostname);
+    return error(`Verification failed (${codes}). Refresh the page and try again.`, 403);
+  }
 
   // 2. Rate limit by salted IP hash (raw IPs are never stored)
   const ipHash = await sha256Hex(`${env.IP_SALT}:${ip}`);
