@@ -14,7 +14,7 @@ export const SITE = {
     doodle: 'record' as string | null,
     // Color that shows through the gaps in the drawing. null = transparent.
     // Palette: orange '#ff6c2f', teal '#00838a', paper '#eeeee9'
-    background: '#ff6c2f' as string | null,
+    background: '#f5f5f0' as string | null,
     // 'circle': the drawing is cropped to its edges and fills a round icon (made for the record).
     // 'square': the drawing sits inside a rounded square.
     shape: 'circle' as 'circle' | 'square',
