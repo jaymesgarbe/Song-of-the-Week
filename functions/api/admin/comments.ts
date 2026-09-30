@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { type Env, json, error, parseWeek } from '../../_shared';
 
 // Defense in depth: Cloudflare Access should already block unauthenticated
@@ -20,15 +20,24 @@ async function authProblem(request: Request, env: Env): Promise<string | null> {
   if (!token) {
     return 'No Cloudflare Access login on this request. Check that the Access application covers the path api/admin on this domain.';
   }
-  jwks ??= createRemoteJWKSet(new URL(`https://${env.ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs`));
+  // Accept "team", "team.cloudflareaccess.com" or "https://team.cloudflareaccess.com/"
+  let team = env.ACCESS_TEAM_DOMAIN.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  if (!team.includes('.')) team = `${team}.cloudflareaccess.com`;
+  jwks ??= createRemoteJWKSet(new URL(`https://${team}/cdn-cgi/access/certs`));
   try {
-    await jwtVerify(token, jwks, { issuer: `https://${env.ACCESS_TEAM_DOMAIN}`, audience: env.ACCESS_AUD });
+    await jwtVerify(token, jwks, { issuer: `https://${team}`, audience: env.ACCESS_AUD.trim() });
     return null;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (/aud/i.test(msg)) return 'Access login found, but ACCESS_AUD does not match this application\'s AUD tag.';
     if (/iss/i.test(msg)) return 'Access login found, but ACCESS_TEAM_DOMAIN does not match your team.';
-    return `Access login could not be verified (${msg}).`;
+    let issuer = 'unknown';
+    try {
+      issuer = String(decodeJwt(token).iss ?? 'unknown');
+    } catch {
+      /* unreadable token */
+    }
+    return `Access login could not be verified (${msg}). Team domain used: ${team}. Your login was issued by: ${issuer}`;
   }
 }
 
