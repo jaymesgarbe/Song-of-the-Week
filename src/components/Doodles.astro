@@ -14,6 +14,9 @@ const { count = 14 } = Astro.props;
 // Raise both numbers to pull doodles toward the middle.
 const EDGE: [number, number] = [5, 13];
 
+// Doodle size range in px (desktop). Mobile shows them at 45% of this.
+const SIZE: [number, number] = [180, 390];
+
 // Share of doodles inked in the second palette color (ink-b)
 const TEAL_SHARE = 0.65;
 
@@ -53,7 +56,7 @@ const items = pool.length === 0 ? [] : Array.from({ length: count }, (_, i) => {
     file: pool[Math.floor(rand() * pool.length)],
     top: Math.min(98, ((i + 0.5) / count) * 100 + between(-3, 3)),
     x: left ? between(EDGE[0], EDGE[1]) : 100 - between(EDGE[0], EDGE[1]),
-    size: Math.round(between(60, 130)),
+    size: Math.round(between(SIZE[0], SIZE[1])),
     rotate: Math.round(between(-30, 30)),
     ink: rand() < TEAL_SHARE ? 'var(--ink-b)' : 'var(--ink-a)',
     mobile: i % 3 === 0, // only every third doodle shows on small screens
@@ -91,7 +94,7 @@ const items = pool.length === 0 ? [] : Array.from({ length: count }, (_, i) => {
     opacity: 0.9;
   }
   @media (max-width: 720px) {
-    .doodle { opacity: 0.35; width: calc(var(--size) * 0.7); height: calc(var(--size) * 0.7); }
+    .doodle { opacity: 0.35; width: calc(var(--size) * 0.45); height: calc(var(--size) * 0.45); }
     .hide-mobile { display: none; }
   }
 </style>
